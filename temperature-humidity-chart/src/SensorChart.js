@@ -5,6 +5,8 @@ import { Card } from "./components/ui/Card";
 
 
 
+
+
 const API_URL = "https://67d58d2f286fdac89bbfaa45.mockapi.io/api/chart/Temperature"; // URL của MockAPI
 
 const fetchData = async () => {
