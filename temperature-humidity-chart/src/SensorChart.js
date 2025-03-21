@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area } from "recharts";
 import axios from "axios";
 import { Card } from "./components/ui/Card";
-
-
-
-
+import dayjs from "dayjs";
 
 const API_URL = "https://67d58d2f286fdac89bbfaa45.mockapi.io/api/chart/Temperature"; // URL của MockAPI
+const thresholds = [25, 50, 120]; // Các ngưỡng
 
 const fetchData = async () => {
     try {
@@ -21,14 +19,38 @@ const fetchData = async () => {
 
 export default function SensorChart() {
     const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const getData = async () => {
-            const sensorData = await fetchData();
-            setData(sensorData);
+            try {
+                setLoading(true);
+                const sensorData = await fetchData();
+                const formattedData = sensorData.map(item => ({
+                    ...item,
+                    timestamp: dayjs(item.timestamp).format("HH:mm:ss DD/MM/YYYY"),
+                }));
+                setData(formattedData);
+            } catch (error) {
+                setError("Error fetching data.");
+            } finally {
+                setLoading(false);
+            }
         };
         getData();
     }, []);
+
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>{error}</div>;
+
+    // Hàm tạo các vùng dữ liệu dựa trên các ngưỡng
+    const getThresholdData = (min, max) => {
+        return data.map(item => ({
+            ...item,
+            temperature: item.temperature >= min && item.temperature < max ? item.temperature : null
+        }));
+    };
 
     return (
         <Card className="p-4">
@@ -40,6 +62,40 @@ export default function SensorChart() {
                     <YAxis />
                     <Tooltip />
                     <Legend />
+                    {/* Vẽ các vùng ngưỡng với màu sắc tương ứng */}
+                    <Area
+                        type="monotone"
+                        dataKey="temperature"
+                        data={getThresholdData(0, thresholds[0])}
+                        stroke="none"
+                        fill="#00FF00"  // Màu xanh cho nhiệt độ < 25
+                        fillOpacity={0.3}
+                    />
+                    <Area
+                        type="monotone"
+                        dataKey="temperature"
+                        data={getThresholdData(thresholds[0], thresholds[1])}
+                        stroke="none"
+                        fill="#FFA500"  // Màu cam cho nhiệt độ từ 25 đến 50
+                        fillOpacity={0.3}
+                    />
+                    <Area
+                        type="monotone"
+                        dataKey="temperature"
+                        data={getThresholdData(thresholds[1], thresholds[2])}
+                        stroke="none"
+                        fill="#FF0000"  // Màu đỏ cho nhiệt độ từ 50 đến 120
+                        fillOpacity={0.3}
+                    />
+                    <Area
+                        type="monotone"
+                        dataKey="temperature"
+                        data={getThresholdData(thresholds[2], Infinity)}
+                        stroke="none"
+                        fill="#800080"  // Màu tím cho nhiệt độ > 120
+                        fillOpacity={0.3}
+                    />
+                    {/* Vẽ các đường Line cho nhiệt độ và độ ẩm */}
                     <Line type="monotone" dataKey="temperature" stroke="#ff7300" name="Nhiệt độ (°C)" />
                     <Line type="monotone" dataKey="humidity" stroke="#387908" name="Độ ẩm (%)" />
                 </LineChart>
