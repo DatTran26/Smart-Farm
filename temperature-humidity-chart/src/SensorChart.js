@@ -5,7 +5,7 @@ import { Card } from "./components/ui/Card";
 import dayjs from "dayjs";
 
 const API_URL = "https://67d58d2f286fdac89bbfaa45.mockapi.io/api/chart/Temperature"; // URL của MockAPI
-const thresholds = [25, 50, 120]; // Các ngưỡng
+const thresholds = [25, 50, 120]; // ngưỡng
 
 const fetchData = async () => {
     try {
@@ -44,7 +44,7 @@ export default function SensorChart() {
     if (loading) return <div>Loading...</div>;
     if (error) return <div>{error}</div>;
 
-    // Hàm tạo các vùng dữ liệu dựa trên các ngưỡng
+    
     const getThresholdData = (min, max) => {
         return data.map(item => ({
             ...item,
@@ -62,13 +62,13 @@ export default function SensorChart() {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    {/* Vẽ các vùng ngưỡng với màu sắc tương ứng */}
+
                     <Area
                         type="monotone"
                         dataKey="temperature"
                         data={getThresholdData(0, thresholds[0])}
                         stroke="none"
-                        fill="#00FF00"  // Màu xanh cho nhiệt độ < 25
+                        fill="#00FF00"  // Màu xanh 
                         fillOpacity={0.3}
                     />
                     <Area
@@ -76,7 +76,7 @@ export default function SensorChart() {
                         dataKey="temperature"
                         data={getThresholdData(thresholds[0], thresholds[1])}
                         stroke="none"
-                        fill="#FFA500"  // Màu cam cho nhiệt độ từ 25 đến 50
+                        fill="#FFA500"  // Màu cam 
                         fillOpacity={0.3}
                     />
                     <Area
@@ -84,7 +84,7 @@ export default function SensorChart() {
                         dataKey="temperature"
                         data={getThresholdData(thresholds[1], thresholds[2])}
                         stroke="none"
-                        fill="#FF0000"  // Màu đỏ cho nhiệt độ từ 50 đến 120
+                        fill="#FF0000"  // Màu đỏ
                         fillOpacity={0.3}
                     />
                     <Area
@@ -92,10 +92,10 @@ export default function SensorChart() {
                         dataKey="temperature"
                         data={getThresholdData(thresholds[2], Infinity)}
                         stroke="none"
-                        fill="#800080"  // Màu tím cho nhiệt độ > 120
+                        fill="#800080"  // Màu tím 
                         fillOpacity={0.3}
                     />
-                    {/* Vẽ các đường Line cho nhiệt độ và độ ẩm */}
+
                     <Line type="monotone" dataKey="temperature" stroke="#ff7300" name="Nhiệt độ (°C)" />
                     <Line type="monotone" dataKey="humidity" stroke="#387908" name="Độ ẩm (%)" />
                 </LineChart>
